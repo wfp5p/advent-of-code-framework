@@ -10,7 +10,6 @@ from pylibwfp import int_arg_range
 import misc.aocConfig as config
 
 SOLUTION_TEMPLATE = """
-
 from ...base import StrSplitSolution, answer
 
 
