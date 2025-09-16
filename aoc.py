@@ -133,8 +133,9 @@ def main():
     # run command and options
     argp_run = argp_subs.add_parser('run', help='run a days code')
     argp_run.add_argument('-t', '--test-data',
-                      action='store_true',
-                      help='run using test_input.txt')
+                          nargs='?',
+                          const='input.test.txt',
+                          help='run test data (default: intput.test.txt')
     argp_run.add_argument('--debug',
                       action='store_true',
                       help='prints normally-hidden debugging statements')

@@ -41,16 +41,16 @@ ResultType = int | str | None
 
 def print_answer(i: int, ans: ResultType):
     if ans is not None:
-        print(f"\n== Part {i}")
-        print(f"=== {ans}")
+        print(f'\n== Part {i}')
+        print(f'=== {ans}')
 
 
 InputType = str | int | list[int] | list[str] | list[list[int]]
-I = TypeVar("I", bound=InputType)  # noqa: E741
+I = TypeVar('I', bound=InputType)  # noqa: E741
 
 
 class BaseSolution[I: InputType]:
-    separator = "\n"
+    separator = '\n'
 
     # Solution Subclasses define these
     input_type: InputTypes = InputTypes.TEXT
@@ -67,14 +67,14 @@ class BaseSolution[I: InputType]:
 
     @property
     def year(self):
-        if not hasattr(self, "_year"):
-            raise NotImplementedError("explicitly define Solution._year")
+        if not hasattr(self, '_year'):
+            raise NotImplementedError('explicitly define Solution._year')
         return self._year
 
     @property
     def day(self):
-        if not hasattr(self, "_day"):
-            raise NotImplementedError("explicitly define Solution._day")
+        if not hasattr(self, '_day'):
+            raise NotImplementedError('explicitly define Solution._day')
         return self._day
 
     def solve(self) -> tuple[ResultType, ResultType]:
@@ -105,22 +105,26 @@ class BaseSolution[I: InputType]:
         """
         handles locating, reading, and parsing input files
         """
+        if self.use_test_data:
+            fname = self.use_test_data
+        else:
+            fname = 'input.txt'
         input_file = Path(
             # __file__ is the solution base
             Path(__file__).parent,
             # the 4-digit year
             str(self.year),
             # padded day folder
-            f"day_{self.day:02}",
+            f'day_{self.day:02}',
             # either the real input or the test input
-            f"input{'.test' if self.use_test_data else ''}.txt",
+            fname,
         )
         if not input_file.exists():
             raise AoCException(
-                f'Failed to find an input file at path "./{input_file.relative_to(Path.cwd())}". You can run `./start --year {self.year} {self.day}` to create it.'
+                f'Failed to find an input file at path "./{input_file.relative_to(Path.cwd())}".'
             )
 
-        data = input_file.read_text().strip("\n")
+        data = input_file.read_text().strip('\n')
 
         if not data:
             raise AoCException(
@@ -145,12 +149,12 @@ class BaseSolution[I: InputType]:
 
             return parts
 
-        raise ValueError(f"Unrecognized input_type: {self.input_type}")
+        raise ValueError(f'Unrecognized input_type: {self.input_type}')
 
     @final
     def run_and_print_solutions(self):
         result = self.solve()
-        print(f"= Solutions for {self.year} Day {self.day}")
+        print(f'= Solutions for {self.year} Day {self.day}')
         try:
             if result:
                 p1, p2 = result
@@ -159,7 +163,7 @@ class BaseSolution[I: InputType]:
             print()
         except TypeError as exc:
             raise ValueError(
-                "unable to unpack 2-tuple from `solve`, got", result
+                'unable to unpack 2-tuple from `solve`, got', result
             ) from exc
 
     @final
@@ -212,7 +216,7 @@ class IntSplitSolution(BaseSolution[list[int]]):
 
 
 # https://stackoverflow.com/a/65681955/1825390
-SolutionClassType = TypeVar("SolutionClassType", bound=BaseSolution)
+SolutionClassType = TypeVar('SolutionClassType', bound=BaseSolution)
 
 
 @overload
@@ -239,8 +243,8 @@ def slow(func):  # type: ignore
             return func(self)
 
         print(
-            f"\nRefusing to run slow function ({func.__name__}). "
-            "Run `./advent` again with the `--slow` flag."
+            f'\nRefusing to run slow function ({func.__name__}). '
+            'Run `./advent` again with the `--slow` flag.'
         )
         return None
 
@@ -249,8 +253,8 @@ def slow(func):  # type: ignore
 
 # these types ensure the return type of the function matches `@answer`
 # see: https://github.com/microsoft/pyright/discussions/4317#discussioncomment-4386187
-R = TypeVar("R")  # return type generic
-Ts = TypeVarTuple("Ts")  # tuple items generic
+R = TypeVar('R')  # return type generic
+Ts = TypeVarTuple('Ts')  # tuple items generic
 
 
 @overload
@@ -294,9 +298,9 @@ def answer[R](
             result = func(self)
             # only assert the answer for non-test data
             if not self.use_test_data and result is not None and result != expected:
-                _, year, day, _ = self.__module__.split(".")
+                _, year, day, _ = self.__module__.split('.')
                 raise AoCException(
-                    f"Failed @answer assertion for {year} / {day} / {func.__name__}:\n  returned: {result}\n  expected: {expected}"
+                    f'Failed @answer assertion for {year} / {day} / {func.__name__}:\n  returned: {result}\n  expected: {expected}'
                 )
             return result
 
