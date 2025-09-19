@@ -81,9 +81,8 @@ def runDay(args):
     if args.day == 0:
         args.day = config.lastDay(tlDir)
 
-    # TODO: Deal with custom module paths
     solutionModuleName = (
-        f'{str(tlDir / f"day_{args.day:02}").replace("/", ".")}.solution'
+        f'{str(tlDir / f"day_{args.day:02}").replace("/", ".")}.{args.solution_module}'
     )
 
     try:
@@ -136,6 +135,11 @@ def main():
                           nargs='?',
                           const='input.test.txt',
                           help='run test data (default: intput.test.txt')
+    argp_run.add_argument('--solution', '--solution-module',
+                          default='solution',
+                          help='name of solution module with the .py (default: solution)',
+                          dest='solution_module'
+                          )
     argp_run.add_argument('--debug',
                       action='store_true',
                       help='prints normally-hidden debugging statements')
