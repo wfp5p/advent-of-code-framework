@@ -141,17 +141,17 @@ def main():
                           dest='solution_module'
                           )
     argp_run.add_argument('--debug',
-                      action='store_true',
-                      help='prints normally-hidden debugging statements')
+                          action='store_true',
+                          help='prints normally-hidden debugging statements')
     argp_run.add_argument('--profile',
-                      action='store_true',
-                      help='run solution through a performance profiler')
+                          action='store_true',
+                          help='run solution through a performance profiler')
     argp_run.add_argument('--slow',
-                      action='store_true',
-                      help='specify that long-running solutions (or those requiring manual input) should be run')
+                          action='store_true',
+                          help='specify that long-running solutions (or those requiring manual input) should be run')
     argp_run.add_argument('--time',
-                      action='store_true',
-                      help='Print information about how long the solution (both parts) took to run')
+                          action='store_true',
+                          help='Print information about how long the solution (both parts) took to run')
     args = argp.parse_args()
     # fmt: on
 
