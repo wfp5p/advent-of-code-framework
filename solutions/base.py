@@ -65,6 +65,9 @@ class BaseSolution[I: InputType]:
 
         self.input = cast(I, self.read_input())
 
+        if hasattr(self, '__aoc_post_init__'):
+            self.__aoc_post_init__()
+
     @property
     def year(self):
         if not hasattr(self, '_year'):
