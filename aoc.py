@@ -31,7 +31,7 @@ class Solution(StrSplitSolution):
     # def part_2(self) -> int:
     #     pass
 
-    @answer((1234, 4567))
+    @answer((None, None))
     def solve(self) -> tuple[int, int]:
         pass
 
