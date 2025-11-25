@@ -16,28 +16,6 @@ from solutions.base import AoCException
 logger.configure(handlers=[LoguruConfig()])
 
 
-SOLUTION_TEMPLATE = """from ...base import StrSplitSolution, answer
-
-
-class Solution(StrSplitSolution):
-    _year = {{ year }}
-    _day = {{ day }}
-
-    # @answer(1234)
-    # def part_1(self) -> int:
-    #     pass
-
-    # @answer(1234)
-    # def part_2(self) -> int:
-    #     pass
-
-    @answer((None, None))
-    def solve(self) -> tuple[int, int]:
-        pass
-
-"""
-
-
 def newDay(args):
     logger.debug('newDay called')
 
@@ -53,7 +31,8 @@ def newDay(args):
             logger.info(f'not touching existing {solFile}')
             return
 
-        template = jinja2.Environment().from_string(SOLUTION_TEMPLATE)
+        j2env = jinja2.Environment(loader=jinja2.FileSystemLoader('./misc/'))
+        template = j2env.get_template('solution.py.j2')
         solFile.write_text(template.render(vars(args)))
 
     tlDir = config.solutionsTopLevelDir(args.year)
