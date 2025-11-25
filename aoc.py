@@ -100,13 +100,21 @@ def main():
                       type=int_arg_range(mini=0, maxi=25),
                       default=0)
     argp.add_argument('--year',
+                      help='year of challenge',
                       type=int_arg_range(mini=2015, maxi=2030),
                       default=config.DEFAULT_YEAR)
 
     argp_subs = argp.add_subparsers(dest='command', required=True)
 
     # new command with no options
-    _argp_new = argp_subs.add_parser('new', help='create a template for a new day')
+    argp_new = argp_subs.add_parser('new', help='create a template for a new day')
+    argp_new.add_argument('--baseclass',
+                          help='baseclass to use for Solution class',
+                          default='StrSplitSolution',
+                          choices=['TextSolution',
+                                   'IntSolution',
+                                   'StrSplitSolution',
+                                   'IntSplitSolution'])
 
     # run command and options
     argp_run = argp_subs.add_parser('run', help='run a days code')
