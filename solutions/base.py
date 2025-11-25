@@ -127,7 +127,7 @@ class BaseSolution[I: InputType]:
                 f'Failed to find an input file at path "./{input_file.relative_to(Path.cwd())}".'
             )
 
-        data = input_file.read_text().strip('\n')
+        data = input_file.read_text(encoding='utf-8').strip('\n')
 
         if not data:
             raise AoCException(
