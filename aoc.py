@@ -157,6 +157,9 @@ def main():
     )
     args = argp.parse_args()
 
+    if args.debug:
+        logger.configure(handlers=[LoguruConfig(default_level='DEBUG')])
+
     match args.command:
         case 'run':
             runDay(args)

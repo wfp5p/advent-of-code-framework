@@ -2,10 +2,10 @@ import os
 import sys
 
 
-def LoguruConfig():
+def LoguruConfig(*, default_level='INFO'):
     lg_handler = {
         'sink': sys.stderr,
-        'level': 'INFO',
+        'level': default_level,
         'format': '<level>{level: <8}</level> | <cyan>{name}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>',
     }
 
