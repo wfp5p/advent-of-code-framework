@@ -4,18 +4,12 @@ https://github.com/xavdid/advent-of-code-python-template
 
 """
 
-from collections.abc import Callable
 from enum import Enum, auto
 from functools import wraps
 from pathlib import Path
 from pprint import pprint
-from typing import (
-    TypeVar,
-    TypeVarTuple,
-    cast,
-    final,
-    overload,
-)
+
+from loguru import logger
 
 
 class AoCException(Exception):
@@ -35,93 +29,74 @@ class InputTypes(Enum):
     INTSPLIT = auto()
 
 
-# almost always int, but occasionally str; None is fine to disable a part
-ResultType = int | str | None
-
-
-def print_answer(i: int, ans: ResultType):
+def print_answer(i, ans):
     if ans is not None:
         print(f'\n== Part {i}')
         print(f'=== {ans}')
 
 
-InputType = str | int | list[int] | list[str] | list[list[int]]
-I = TypeVar('I', bound=InputType)  # noqa: E741
-
-
-class BaseSolution[I: InputType]:
+class BaseSolution:
     separator = '\n'
+    input_type = InputTypes.TEXT
+    _year = None
+    _day = None
 
-    # Solution Subclasses define these
-    input_type: InputTypes = InputTypes.TEXT
-    _year: int
-    _day: int
-
-    # TODO: Change these option names
     def __init__(self, *, run_slow=False, is_debugging=False, use_test_data=False):
-        self.slow = run_slow  # should run slow functions?
+        self.slow = run_slow
         self.is_debugging = is_debugging
         self.use_test_data = use_test_data
 
-        self.input = cast(I, self.read_input())
+        self.input = self.read_input()
 
         if hasattr(self, '__aoc_post_init__'):
             self.__aoc_post_init__()
 
     @property
     def year(self):
-        if not hasattr(self, '_year'):
+        if self._year is None:
             raise NotImplementedError('explicitly define Solution._year')
         return self._year
 
     @property
     def day(self):
-        if not hasattr(self, '_day'):
+        if self._day is None:
             raise NotImplementedError('explicitly define Solution._day')
         return self._day
 
-    def solve(self) -> tuple[ResultType, ResultType]:
+    def solve(self):
         """
         Returns a 2-tuple with the answers.
             Used instead of `part_1/2` if one set of calculations yields both answers.
         """
         return self.part_1(), self.part_2()
 
-    def part_1(self) -> ResultType:
+    def part_1(self):
         """
         Returns the answer for part 1 of the puzzle. Only needed if there's not a unified solve method.
         """
         raise NotImplementedError
 
-    def part_2(self) -> ResultType:
+    def part_2(self):
         """
         Returns the answer for part 2 of the puzzle. Only needed if there's not a unified solve method.
         """
         if self.day == 25:
             # day 25 never has a part 2
-            pass
+            logger.debug('skipping part 2 because day is 25')
         else:
             raise NotImplementedError
 
-    @final
-    def read_input(self) -> InputType:
+    def read_input(self):
         """
         handles locating, reading, and parsing input files
         """
-        if self.use_test_data:
-            fname = self.use_test_data
-        else:
-            fname = 'input.txt'
-        input_file = Path(
-            # __file__ is the solution base
-            Path(__file__).parent,
-            # the 4-digit year
-            str(self.year),
-            # padded day folder
-            f'day_{self.day:02}',
-            # either the real input or the test input
-            fname,
+        input_file = (
+            Path(__file__).parent / str(self.year) / f'day_{self.day:02}' / 'input.txt'
         )
+
+        if self.use_test_data:
+            input_file = input_file.with_name(self.use_test_data)
+
         if not input_file.exists():
             raise AoCException(
                 f'Failed to find an input file at path "./{input_file.relative_to(Path.cwd())}".'
@@ -134,27 +109,20 @@ class BaseSolution[I: InputType]:
                 f'Found a file at path "./{input_file.relative_to(Path.cwd())}", but it was empty. Make sure to paste some input!'
             )
 
-        if self.input_type is InputTypes.TEXT:
-            return data
+        match self.input_type:
+            case InputTypes.TEXT:
+                return data
+            case InputTypes.INTEGER:
+                return int(data)
+            case InputTypes.INTSPLIT:
+                convert = int
+            case InputTypes.STRSPLIT:
+                convert = str
+            case _:
+                raise ValueError(f'Unrecognized input_type: {self.input_type}')
 
-        if self.input_type is InputTypes.INTEGER:
-            return int(data)
+        return [convert(x) for x in data.split(self.separator)]
 
-        if (
-            self.input_type is InputTypes.STRSPLIT
-            or self.input_type is InputTypes.INTSPLIT
-        ):
-            # default to newlines
-            parts = data.split(self.separator)
-
-            if self.input_type == InputTypes.INTSPLIT:
-                return [int(i) for i in parts]
-
-            return parts
-
-        raise ValueError(f'Unrecognized input_type: {self.input_type}')
-
-    @final
     def run_and_print_solutions(self):
         result = self.solve()
         print(f'= Solutions for {self.year} Day {self.day}')
@@ -169,7 +137,6 @@ class BaseSolution[I: InputType]:
                 'unable to unpack 2-tuple from `solve`, got', result
             ) from exc
 
-    @final
     def debug(self, *objects, trailing_newline=False):
         """
         helpful debugging utility. Does nothing if `./advent` isn't passed the --debug flag
@@ -186,7 +153,7 @@ class BaseSolution[I: InputType]:
             print()
 
 
-class TextSolution(BaseSolution[str]):
+class TextSolution(BaseSolution):
     """
     input is one solid block of text; the default
     """
@@ -194,7 +161,7 @@ class TextSolution(BaseSolution[str]):
     input_type = InputTypes.TEXT
 
 
-class IntSolution(BaseSolution[int]):
+class IntSolution(BaseSolution):
     """
     input is a single int
     """
@@ -202,7 +169,7 @@ class IntSolution(BaseSolution[int]):
     input_type = InputTypes.INTEGER
 
 
-class StrSplitSolution(BaseSolution[list[str]]):
+class StrSplitSolution(BaseSolution):
     """
     input is a str[], split by a specified separator (default newline); specify self.separator to tweak
     """
@@ -210,7 +177,7 @@ class StrSplitSolution(BaseSolution[list[str]]):
     input_type = InputTypes.STRSPLIT
 
 
-class IntSplitSolution(BaseSolution[list[int]]):
+class IntSplitSolution(BaseSolution):
     """
     input is a int[], split by a specified separator (default newline); specify self.separator to tweak
     """
@@ -218,23 +185,7 @@ class IntSplitSolution(BaseSolution[list[int]]):
     input_type = InputTypes.INTSPLIT
 
 
-# https://stackoverflow.com/a/65681955/1825390
-SolutionClassType = TypeVar('SolutionClassType', bound=BaseSolution)
-
-
-@overload
-def slow[SolutionClassType: BaseSolution](
-    func: Callable[[SolutionClassType], tuple[ResultType, ResultType]],
-) -> Callable[[SolutionClassType], tuple[ResultType, ResultType]]: ...
-
-
-@overload
-def slow[SolutionClassType: BaseSolution](
-    func: Callable[[SolutionClassType], ResultType],
-) -> Callable[[SolutionClassType], ResultType]: ...
-
-
-def slow(func):  # type: ignore
+def slow(func):
     """
     A decorator for solution methods that blocks their execution (and returns without error)
     if the the function is manually marked as "slow". Helpful if running many solutions at once,
@@ -245,39 +196,13 @@ def slow(func):  # type: ignore
         if self.slow or self.use_test_data:
             return func(self)
 
-        print(
-            f'\nRefusing to run slow function ({func.__name__}). '
-            'Run `./advent` again with the `--slow` flag.'
-        )
+        logger.info(f'Skipping slow function ({func.__name__})')
         return None
 
     return wrapper
 
 
-# these types ensure the return type of the function matches `@answer`
-# see: https://github.com/microsoft/pyright/discussions/4317#discussioncomment-4386187
-R = TypeVar('R')  # return type generic
-Ts = TypeVarTuple('Ts')  # tuple items generic
-
-
-@overload
-def answer[*Ts](  # type: ignore
-    expected: tuple[*Ts],
-) -> Callable[
-    [Callable[[SolutionClassType], tuple[*Ts]]],
-    Callable[[SolutionClassType], tuple[*Ts]],
-]: ...
-
-
-@overload
-def answer[R](
-    expected: R,
-) -> Callable[[Callable[[SolutionClassType], R]], Callable[[SolutionClassType], R]]: ...
-
-
-def answer[R](
-    expected: R,
-) -> Callable[[Callable[[SolutionClassType], R]], Callable[[SolutionClassType], R]]:
+def answer(expected):
     """
     Decorator to assert the result of the function is a certain thing.
     This is specifically designed to be used on instance methods of BaseSolution.
@@ -294,10 +219,10 @@ def answer[R](
     ```
     """
 
-    def deco(func: Callable[[SolutionClassType], R]):
+    def deco(func):
         @wraps(func)
         # uses `self` because that's what's passed to the original solution function
-        def wrapper(self: SolutionClassType):
+        def wrapper(self):
             result = func(self)
             # only assert the answer for non-test data
             if not self.use_test_data and result is not None and result != expected:
