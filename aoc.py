@@ -3,17 +3,35 @@
 
 import argparse
 import importlib
+import sys
 
 import jinja2
 from loguru import logger
-from pylibwfp import int_arg_range
 
 import misc.aocConfig as config
+from aoc_base import AoCException
 from misc.loguruconfig import LoguruConfig
 from misc.perfwatch import PerfWatch
-from aoc_base import AoCException
 
 logger.configure(handlers=[LoguruConfig()])
+
+
+def int_arg_range(mini=0, maxi=sys.maxsize):
+    """create function handle to check for int between mini and maxi inclusive"""
+
+    def int_range_checker(value):
+        try:
+            x = int(value)
+        except ValueError as VE:
+            raise argparse.ArgumentTypeError('must be an integer') from VE
+        if x < mini or x > maxi:
+            raise argparse.ArgumentTypeError(
+                'must be in range [' + str(mini) + ' .. ' + str(maxi) + ']'
+            )
+
+        return x
+
+    return int_range_checker
 
 
 def newDay(args):
