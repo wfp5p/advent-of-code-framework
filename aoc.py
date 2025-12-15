@@ -11,7 +11,7 @@ from pylibwfp import int_arg_range
 import misc.aocConfig as config
 from misc.loguruconfig import LoguruConfig
 from misc.perfwatch import PerfWatch
-from solutions.base import AoCException
+from aoc_base import AoCException
 
 logger.configure(handlers=[LoguruConfig()])
 

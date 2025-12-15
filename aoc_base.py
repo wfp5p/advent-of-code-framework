@@ -91,7 +91,7 @@ class BaseSolution:
         handles locating, reading, and parsing input files
         """
         input_file = (
-            Path(__file__).parent / str(self.year) / f'day_{self.day:02}' / 'input.txt'
+            Path(__file__).parent / 'solutions' / str(self.year) / f'day_{self.day:02}' / 'input.txt'
         )
 
         if self.use_test_data:
