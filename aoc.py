@@ -144,7 +144,7 @@ def main():
         '--test-data',
         nargs='?',
         const='input.test.txt',
-        help='run test data (default: intput.test.txt',
+        help='run test data (default: input.test.txt)',
     )
     argp_run.add_argument(
         '--solution',
