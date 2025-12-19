@@ -14,7 +14,7 @@ to create or run.  If omitted they will default to today's date.
 
 ### Starting a new puzzle
 
-> `./aoc.py [--year YEAR] [--day DAY] new [--baseclass {TextSolution,IntSolution,StrSplitSolution,IntSplitSolution}'
+> `./aoc.py [--year YEAR] [--day DAY] new [--baseclass {TextSolution,IntSolution,StrSplitSolution,IntSplitSolution}`
 
 Creates a new solution framework in the directory solutions/YEAR/day_DAY
 
